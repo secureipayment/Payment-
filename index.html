@@ -119,13 +119,13 @@ input{
     display:none;
 }
 
-/* Quick pay buttons styling */
-.quick-pay {
+/* Quick Pay buttons styling */
+.quick-pay-container {
     text-align:center;
-    margin:20px 0 10px;
+    margin:20px 0;
 }
 
-.quick-pay .label {
+.quick-pay-label {
     font-weight:600;
     margin-bottom:12px;
     display:block;
@@ -134,7 +134,7 @@ input{
 .quick-pay-buttons {
     display:flex;
     justify-content:center;
-    gap:12px;
+    gap:15px;
     flex-wrap:wrap;
 }
 
@@ -145,13 +145,13 @@ input{
     border-radius:10px;
     font-size:16px;
     cursor:pointer;
-    min-width:130px;
+    min-width:140px;
     box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
-.gpay-btn { background:#1a73e8; }
-.phonepe-btn { background:#5f2ee5; }
-.paytm-btn { background:#00baf2; }
+.gpay { background:#1a73e8; }
+.phonepe { background:#5f2ee5; }
+.paytm { background:#00baf2; }
 </style>
 </head>
 
@@ -170,24 +170,6 @@ Link expires in <span id="countdown">05:00</span>
 <div class="step">Step 1 : Copy Payment Details or Quick Pay</div>
 
 <div class="box">
-
-<!-- APP -->
-<div class="row" id="appRow">
-<div>
-<div class="label">Merchant / App</div>
-<div class="value" id="app"></div>
-</div>
-<button class="copy" onclick="copyText('app')">Copy</button>
-</div>
-
-<!-- CUSTOMER -->
-<div class="row" id="customerRow">
-<div>
-<div class="label">Customer</div>
-<div class="value" id="customer"></div>
-</div>
-<button class="copy" onclick="copyText('customer')">Copy</button>
-</div>
 
 <!-- AMOUNT -->
 <div class="row">
@@ -211,13 +193,12 @@ Link expires in <span id="countdown">05:00</span>
 
 <img id="qr" class="qr" width="210"/>
 
-<!-- Quick Pay Buttons -->
-<div class="quick-pay">
-    <div class="label">Quick Pay with</div>
+<div class="quick-pay-container">
+    <div class="quick-pay-label">Quick Pay with</div>
     <div class="quick-pay-buttons">
-        <button class="quick-pay-btn gpay-btn" onclick="openUPIApp('gpay')">Google Pay</button>
-        <button class="quick-pay-btn phonepe-btn" onclick="openUPIApp('phonepe')">PhonePe</button>
-        <button class="quick-pay-btn paytm-btn" onclick="openUPIApp('paytm')">Paytm</button>
+        <button class="quick-pay-btn gpay" onclick="openUPIApp('gpay')">Google Pay</button>
+        <button class="quick-pay-btn phonepe" onclick="openUPIApp('phonepe')">PhonePe</button>
+        <button class="quick-pay-btn paytm" onclick="openUPIApp('paytm')">Paytm</button>
     </div>
 </div>
 
@@ -285,26 +266,21 @@ const amount = params.get("amount") || "1";
 const upi = params.get("upi") || "upi@bank";
 
 
-/* AUTO HIDE */
+/* AUTO HIDE / POPULATE */
 
 if(app){
     document.getElementById("app").innerText = app;
     document.getElementById("appName").innerText = app;
-}else{
-    document.getElementById("appRow").style.display = "none";
-}
-
-if(customer){
-    document.getElementById("customer").innerText = customer;
-}else{
-    document.getElementById("customerRow").style.display = "none";
+} else {
+    // If no app, we can keep merchant row hidden or adjust
+    // For now, assuming amount & upi are main
 }
 
 document.getElementById("amount").innerText = "₹" + amount;
 document.getElementById("upi").innerText = upi;
 
 
-/* RAW AMOUNT */
+/* RAW AMOUNT for copy & deep links */
 
 const raw = document.createElement("span");
 raw.id = "amountRaw";
@@ -315,7 +291,7 @@ document.body.appendChild(raw);
 
 /* QR */
 
-const pay = `upi://pay?pa=\( {upi}&pn= \){app||"Payment"}&am=${amount}&cu=INR`;
+const pay = `upi://pay?pa=\( {upi}&pn= \){app || "Payment"}&am=${amount}&cu=INR`;
 
 document.getElementById("qr").src =
 `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(pay)}`;
@@ -325,36 +301,41 @@ document.getElementById("qr").src =
 
 function copyText(id){
     navigator.clipboard.writeText(document.getElementById(id).innerText);
-
     const msg = document.getElementById("copyMsg");
     msg.style.display = "block";
-
     setTimeout(()=>msg.style.display="none",1000);
 }
 
 
-/* QUICK PAY BUTTONS */
+/* QUICK PAY BUTTONS - Direct deep links */
 
 function openUPIApp(appType) {
     const upiId = document.getElementById("upi").innerText;
     const amt = document.getElementById("amountRaw").innerText;
-    const pn = document.getElementById("app").innerText || "Payment";
-    const tn = "Payment to " + (pn || "Merchant");  // transaction note
+    const pn = document.getElementById("appName").innerText || "Payment";
+    const tn = "Secure Payment via Merchant"; // optional note
 
-    let params = `pa=\( {encodeURIComponent(upiId)}&pn= \){encodeURIComponent(pn)}&am=\( {amt}&cu=INR&tn= \){encodeURIComponent(tn)}`;
+    let baseParams = `pa=\( {encodeURIComponent(upiId)}&pn= \){encodeURIComponent(pn)}&am=\( {amt}&cu=INR&tn= \){encodeURIComponent(tn)}`;
 
     let uri = "";
+
     if (appType === 'gpay') {
-        uri = `tez://upi/pay?${params}`;
+        uri = `tez://upi/pay?${baseParams}`;  // tez:// works reliably for Google Pay
+        // Alternative: gpay://upi/pay?${baseParams}  -- try if tez fails
     } else if (appType === 'phonepe') {
-        uri = `phonepe://pay?${params}`;
+        uri = `phonepe://pay?${baseParams}`;
     } else if (appType === 'paytm') {
-        uri = `paytmmp://pay?${params}`;
+        uri = `paytmmp://pay?${baseParams}`;
     }
 
     if (uri) {
         window.location.href = uri;
     }
+
+    // Optional: silent fallback after \~1.5s if app doesn't launch
+    setTimeout(() => {
+        // Could add alert("App not opening? Try QR code or copy UPI.") but keeping clean
+    }, 1500);
 }
 
 
@@ -362,42 +343,31 @@ function openUPIApp(appType) {
 
 let time = 300;
 
-const countdown = setInterval(()=>{
-
-    let m = Math.floor(time/60);
+const countdown = setInterval(() => {
+    let m = Math.floor(time / 60);
     let s = time % 60;
-
-    if(s < 10) s = "0" + s;
-
+    if (s < 10) s = "0" + s;
     document.getElementById("countdown").innerText = `\( {m}: \){s}`;
-
     time--;
-
-    if(time < 0){
+    if (time < 0) {
         clearInterval(countdown);
         document.getElementById("paymentCard").style.display = "none";
         document.getElementById("expiredCard").style.display = "block";
     }
-
-},1000);
+}, 1000);
 
 
 /* SUBMIT UTR */
 
 function submitUTR(){
-
-    if(time < 0) return;
-
+    if (time < 0) return;
     const utr = document.getElementById("utr").value;
-
-    if(!/^[0-9]{12}$/.test(utr)) return;
-
+    if (!/^[0-9]{12}$/.test(utr)) return;
     document.getElementById("paymentCard").style.display = "none";
     document.getElementById("successCard").style.display = "block";
-
 }
 
 </script>
 
 </body>
-                                                           </html>
+</html>
