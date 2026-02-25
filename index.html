@@ -8,49 +8,50 @@
 <style>
 body{
 margin:0;
-background:#f4f6fb;
+background:#f3f6fb;
 font-family:Arial;
 }
 
 .container{
-max-width:430px;
+max-width:440px;
 margin:20px auto;
 background:white;
-border-radius:16px;
+border-radius:18px;
 box-shadow:0 15px 40px rgba(0,0,0,0.08);
 overflow:hidden;
 }
 
 .header{
-background:#111827;
+background:#0f172a;
 color:white;
-padding:16px;
+padding:18px;
 text-align:center;
-font-size:18px;
+font-size:20px;
 font-weight:bold;
 }
 
 .timer{
 text-align:center;
-padding:10px;
+padding:12px;
 color:#dc2626;
 font-weight:bold;
 }
 
-.step{
+.section{
 background:#e5edff;
-padding:10px;
+padding:12px;
 font-weight:bold;
 }
 
 .box{
-padding:15px;
+padding:18px;
 }
 
 .row{
 display:flex;
 justify-content:space-between;
 margin:12px 0;
+align-items:center;
 }
 
 .label{
@@ -59,39 +60,50 @@ font-size:14px;
 }
 
 .value{
+font-size:17px;
 font-weight:bold;
-font-size:16px;
-}
-
-button{
-padding:8px 12px;
-border:none;
-border-radius:6px;
-cursor:pointer;
 }
 
 .copy{
 background:#2563eb;
 color:white;
+border:none;
+padding:6px 12px;
+border-radius:6px;
+cursor:pointer;
 }
 
 .paybtn{
 width:100%;
-margin-top:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
 padding:14px;
+border:none;
+border-radius:12px;
+margin-top:12px;
 font-size:16px;
 font-weight:bold;
-border-radius:10px;
 color:white;
+cursor:pointer;
 }
 
 .phonepe{background:#5f259f;}
 .gpay{background:#0f9d58;}
 .paytm{background:#00baf2;}
 
+.paybtn svg{
+width:22px;
+height:22px;
+background:white;
+border-radius:50%;
+padding:3px;
+}
+
 input{
 width:100%;
-padding:12px;
+padding:14px;
 border-radius:8px;
 border:1px solid #ccc;
 margin-top:10px;
@@ -100,9 +112,10 @@ margin-top:10px;
 .submit{
 width:100%;
 padding:14px;
+margin-top:10px;
 background:#16a34a;
 color:white;
-margin-top:10px;
+border:none;
 border-radius:8px;
 font-weight:bold;
 }
@@ -124,7 +137,7 @@ padding:40px;
 Expires in <span id="countdown">05:00</span>
 </div>
 
-<div class="step">Payment Details</div>
+<div class="section">Payment Details</div>
 
 <div class="box">
 
@@ -160,13 +173,25 @@ Expires in <span id="countdown">05:00</span>
 <button class="copy" onclick="copyText('upi')">Copy</button>
 </div>
 
-<button class="paybtn phonepe" onclick="payNow()">Pay with PhonePe</button>
-<button class="paybtn gpay" onclick="payNow()">Pay with Google Pay</button>
-<button class="paybtn paytm" onclick="payNow()">Pay with Paytm</button>
+<button class="paybtn phonepe" onclick="payNow()">
+<!-- Simple circle icon -->
+<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#5f259f"/></svg>
+Pay with PhonePe
+</button>
+
+<button class="paybtn gpay" onclick="payNow()">
+<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#0f9d58"/></svg>
+Pay with Google Pay
+</button>
+
+<button class="paybtn paytm" onclick="payNow()">
+<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#00baf2"/></svg>
+Pay with Paytm
+</button>
 
 </div>
 
-<div class="step">Enter UTR</div>
+<div class="section">Enter UTR</div>
 
 <div class="box">
 <input id="utr" maxlength="12" placeholder="Enter 12-digit UTR">
@@ -182,7 +207,7 @@ Expires in <span id="countdown">05:00</span>
 
 <div class="container expired" id="expired">
 <h2>Link Expired</h2>
-<p>Please request a new link.</p>
+<p>Please request new link.</p>
 </div>
 
 <script>
@@ -227,7 +252,6 @@ navigator.clipboard.writeText(document.getElementById(id).innerText);
 }
 
 let t=300;
-
 const timer=setInterval(()=>{
 let m=Math.floor(t/60);
 let s=t%60;
