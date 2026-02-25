@@ -88,10 +88,6 @@ border-radius:14px;
 font-size:16px;
 font-weight:700;
 cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:10px;
 color:white;
 transition:0.2s;
 }
@@ -103,11 +99,6 @@ transform:scale(0.98);
 .phonepe{background:#5f259f;}
 .gpay{background:#0f9d58;}
 .paytm{background:#00baf2;}
-
-.paybtn img{
-width:22px;
-height:22px;
-}
 
 input{
 width:100%;
@@ -184,22 +175,11 @@ Expires in <span id="countdown">05:00</span>
 <button class="copy" onclick="copyText('upi')">Copy</button>
 </div>
 
-<img id="qr" class="qr" width="210"/>
+<img id="qr" class="qr" width="220"/>
 
-<button class="paybtn phonepe" onclick="payNow()">
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAABhv/7zAAAABGdBTUEAALGPC/xhBQAAAFpQTFRF////VlZWqqqqMzMzX19fhoaGsbGxvLy8bW1tUVFRfHx8QEBAbGxsrKysf39/SkpKkZGRjIyMaGhoZ2dnY2NjYWFhRERE5ubmPz8/RUVFbm5u4uLi7e3tV1dXcHBwhISEPj4+GxsbwMDAAgICAAAAOklEQVQY02NgQAPGJgYmRkYGBgYGJkYmBgYGZkYmBgYGZmBgYGZmBgYGRkYGRgYGZmZmBgYGBgYGRgYGBgYGAAARH0Cg1dQc5wAAAAASUVORK5CYII=">
-PhonePe
-</button>
-
-<button class="paybtn gpay" onclick="payNow()">
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAABhv/7zAAAABGdBTUEAALGPC/xhBQAAAF1QTFRF////YWFhVFRUbW1tb29vW1tbZ2dnRUVFfX19ZGRkYGBgTExMhoaGdHR0Y2NjfHx8d3d3RkZGSkpKeXl5kZGRjIyMeHh4c3NzX19fYWFhRUVF9fX1+fn5nZ2dfX19UVFRgYGBaWlpbW1tYGBgAAAAO0lEQVQY02NgQANMDIwMjIwMDAyMjAyMjIyMjAyMjAyMjAyMjAyMjAyMjAyMjAyMjAyMjAwMDAyMjAwMAAAAsxYCBUq7O0gAAAAASUVORK5CYII=">
-Google Pay
-</button>
-
-<button class="paybtn paytm" onclick="payNow()">
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAMAAABhv/7zAAAABGdBTUEAALGPC/xhBQAAAF1QTFRF////Y2NjX19fZGRkVFRUbW1tb29vSkpKZ2dnhoaGfX19RUVFdHR0c3NzYGBgYWFhREREbm5uY2NjZGRkeHh4fHx8X19fYWFhUVFRaWlpYGBgAAAAO0lEQVQY02NgQANMDIwMjIwMDAyMjAyMjAyMjAyMjAyMjAyMjAyMjAyMjAyMjAyMjAyMjAwMDAyMjAwMAAAApWQCBhImPiQAAAAASUVORK5CYII=">
-Paytm
-</button>
+<button class="paybtn phonepe" onclick="payNow()">Pay with PhonePe</button>
+<button class="paybtn gpay" onclick="payNow()">Pay with Google Pay</button>
+<button class="paybtn paytm" onclick="payNow()">Pay with Paytm</button>
 
 </div>
 
@@ -231,6 +211,7 @@ const customer = params.get("customer");
 const amount = params.get("amount") || "1";
 const upi = params.get("upi") || "upi@bank";
 
+/* Merchant */
 if(app){
 document.getElementById("app").innerText = app;
 document.getElementById("appTitle").innerText = app;
@@ -238,6 +219,7 @@ document.getElementById("appTitle").innerText = app;
 document.getElementById("appRow").style.display = "none";
 }
 
+/* Customer */
 if(customer){
 document.getElementById("customer").innerText = customer;
 }else{
@@ -247,27 +229,32 @@ document.getElementById("customerRow").style.display = "none";
 document.getElementById("amount").innerText = "₹" + amount;
 document.getElementById("upi").innerText = upi;
 
+/* Hidden raw amount */
 const raw = document.createElement("span");
 raw.id = "amountRaw";
 raw.style.display = "none";
 raw.innerText = amount;
 document.body.appendChild(raw);
 
+/* UPI Link */
 const upiLink = `upi://pay?pa=${upi}&pn=${app || "Payment"}&am=${amount}&cu=INR`;
 
+/* QR */
 document.getElementById("qr").src =
 `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiLink)}`;
 
+/* Payment button */
 function payNow(){
 window.location.href = upiLink;
 }
 
+/* Copy */
 function copyText(id){
 navigator.clipboard.writeText(document.getElementById(id).innerText);
 }
 
+/* Timer */
 let time = 300;
-
 const countdown = setInterval(() => {
 let m = Math.floor(time / 60);
 let s = time % 60;
@@ -281,6 +268,7 @@ document.getElementById("expiredCard").style.display = "block";
 }
 }, 1000);
 
+/* UTR Validation */
 function submitUTR(){
 const val = document.getElementById("utr").value;
 if(!/^[0-9]{12}$/.test(val)) return;
