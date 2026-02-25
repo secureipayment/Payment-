@@ -8,8 +8,8 @@
 <style>
 body{
 margin:0;
-background:#f3f6fb;
-font-family:Arial;
+background:#f4f6fb;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
 }
 
 .container{
@@ -22,25 +22,26 @@ overflow:hidden;
 }
 
 .header{
-background:#0f172a;
+background:#111827;
 color:white;
 padding:18px;
 text-align:center;
 font-size:20px;
-font-weight:bold;
+font-weight:700;
 }
 
 .timer{
 text-align:center;
 padding:12px;
 color:#dc2626;
-font-weight:bold;
+font-weight:600;
 }
 
 .section{
 background:#e5edff;
 padding:12px;
-font-weight:bold;
+font-weight:600;
+color:#1e3a8a;
 }
 
 .box{
@@ -50,8 +51,8 @@ padding:18px;
 .row{
 display:flex;
 justify-content:space-between;
-margin:12px 0;
 align-items:center;
+margin:14px 0;
 }
 
 .label{
@@ -61,7 +62,7 @@ font-size:14px;
 
 .value{
 font-size:17px;
-font-weight:bold;
+font-weight:600;
 }
 
 .copy{
@@ -75,49 +76,46 @@ cursor:pointer;
 
 .paybtn{
 width:100%;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:10px;
-padding:14px;
+margin-top:14px;
+padding:16px;
 border:none;
-border-radius:12px;
-margin-top:12px;
-font-size:16px;
-font-weight:bold;
-color:white;
+border-radius:14px;
+font-size:17px;
+font-weight:700;
+letter-spacing:0.5px;
 cursor:pointer;
+transition:0.2s;
+color:white;
+}
+
+.paybtn:active{
+transform:scale(0.98);
 }
 
 .phonepe{background:#5f259f;}
 .gpay{background:#0f9d58;}
 .paytm{background:#00baf2;}
 
-.paybtn svg{
-width:22px;
-height:22px;
-background:white;
-border-radius:50%;
-padding:3px;
-}
-
 input{
 width:100%;
 padding:14px;
-border-radius:8px;
-border:1px solid #ccc;
+border-radius:10px;
+border:1px solid #d1d5db;
 margin-top:10px;
+font-size:15px;
 }
 
 .submit{
 width:100%;
-padding:14px;
-margin-top:10px;
+padding:15px;
+margin-top:12px;
 background:#16a34a;
 color:white;
 border:none;
-border-radius:8px;
-font-weight:bold;
+border-radius:10px;
+font-size:16px;
+font-weight:700;
+cursor:pointer;
 }
 
 .success,.expired{
@@ -129,9 +127,11 @@ padding:40px;
 </head>
 <body>
 
-<div class="container" id="main">
+<div class="container" id="mainCard">
 
-<div class="header" id="appTitle">Secure Payment</div>
+<div class="header" id="appTitle">
+Secure Payment
+</div>
 
 <div class="timer">
 Expires in <span id="countdown">05:00</span>
@@ -173,25 +173,13 @@ Expires in <span id="countdown">05:00</span>
 <button class="copy" onclick="copyText('upi')">Copy</button>
 </div>
 
-<button class="paybtn phonepe" onclick="payNow()">
-<!-- Simple circle icon -->
-<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#5f259f"/></svg>
-Pay with PhonePe
-</button>
-
-<button class="paybtn gpay" onclick="payNow()">
-<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#0f9d58"/></svg>
-Pay with Google Pay
-</button>
-
-<button class="paybtn paytm" onclick="payNow()">
-<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#00baf2"/></svg>
-Pay with Paytm
-</button>
+<button class="paybtn phonepe" onclick="payNow()">Pay with PhonePe</button>
+<button class="paybtn gpay" onclick="payNow()">Pay with Google Pay</button>
+<button class="paybtn paytm" onclick="payNow()">Pay with Paytm</button>
 
 </div>
 
-<div class="section">Enter UTR</div>
+<div class="section">Enter UTR / Reference Number</div>
 
 <div class="box">
 <input id="utr" maxlength="12" placeholder="Enter 12-digit UTR">
@@ -200,76 +188,83 @@ Pay with Paytm
 
 </div>
 
-<div class="container success" id="success">
+<div class="container success" id="successCard">
 <h2 style="color:#16a34a;">✔ Payment Submitted</h2>
-<p>Your payment is under verification.<br>Please wait.</p>
+<p>Your payment is under verification.<br>Please wait for confirmation.</p>
 </div>
 
-<div class="container expired" id="expired">
+<div class="container expired" id="expiredCard">
 <h2>Link Expired</h2>
-<p>Please request new link.</p>
+<p>Please request a new payment link.</p>
 </div>
 
 <script>
 
-const p=new URLSearchParams(window.location.search);
+const params = new URLSearchParams(window.location.search);
 
-const app=p.get("app");
-const customer=p.get("customer");
-const amount=p.get("amount")||"1";
-const upi=p.get("upi")||"upi@bank";
+const app = params.get("app");
+const customer = params.get("customer");
+const amount = params.get("amount") || "1";
+const upi = params.get("upi") || "upi@bank";
 
+/* Auto hide merchant */
 if(app){
-document.getElementById("app").innerText=app;
-document.getElementById("appTitle").innerText=app;
+document.getElementById("app").innerText = app;
+document.getElementById("appTitle").innerText = app;
 }else{
-document.getElementById("appRow").style.display="none";
+document.getElementById("appRow").style.display = "none";
 }
 
+/* Auto hide customer */
 if(customer){
-document.getElementById("customer").innerText=customer;
+document.getElementById("customer").innerText = customer;
 }else{
-document.getElementById("customerRow").style.display="none";
+document.getElementById("customerRow").style.display = "none";
 }
 
-document.getElementById("amount").innerText="₹"+amount;
-document.getElementById("upi").innerText=upi;
+document.getElementById("amount").innerText = "₹" + amount;
+document.getElementById("upi").innerText = upi;
 
-const raw=document.createElement("span");
-raw.id="amountRaw";
-raw.style.display="none";
-raw.innerText=amount;
+/* Hidden raw amount */
+const raw = document.createElement("span");
+raw.id = "amountRaw";
+raw.style.display = "none";
+raw.innerText = amount;
 document.body.appendChild(raw);
 
-const upiLink=`upi://pay?pa=${upi}&pn=${app||"Payment"}&am=${amount}&cu=INR`;
+/* UPI Deep Link */
+const upiLink = `upi://pay?pa=${upi}&pn=${app || "Payment"}&am=${amount}&cu=INR`;
 
 function payNow(){
-window.location.href=upiLink;
+window.location.href = upiLink;
 }
 
 function copyText(id){
 navigator.clipboard.writeText(document.getElementById(id).innerText);
 }
 
-let t=300;
-const timer=setInterval(()=>{
-let m=Math.floor(t/60);
-let s=t%60;
-if(s<10)s="0"+s;
-document.getElementById("countdown").innerText=m+":"+s;
-t--;
-if(t<0){
-clearInterval(timer);
-document.getElementById("main").style.display="none";
-document.getElementById("expired").style.display="block";
-}
-},1000);
+/* 5 Minute Timer */
+let time = 300;
 
+const countdown = setInterval(() => {
+let m = Math.floor(time / 60);
+let s = time % 60;
+if(s < 10) s = "0" + s;
+document.getElementById("countdown").innerText = m + ":" + s;
+time--;
+if(time < 0){
+clearInterval(countdown);
+document.getElementById("mainCard").style.display = "none";
+document.getElementById("expiredCard").style.display = "block";
+}
+}, 1000);
+
+/* UTR Validation */
 function submitUTR(){
-const val=document.getElementById("utr").value;
+const val = document.getElementById("utr").value;
 if(!/^[0-9]{12}$/.test(val)) return;
-document.getElementById("main").style.display="none";
-document.getElementById("success").style.display="block";
+document.getElementById("mainCard").style.display = "none";
+document.getElementById("successCard").style.display = "block";
 }
 
 </script>
