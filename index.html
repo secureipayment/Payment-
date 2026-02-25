@@ -6,25 +6,249 @@
 <title>Secure Payment</title>
 
 <style>
-
 body{
-    margin:0;
-    background:#f4f6fb;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+margin:0;
+background:#f4f6fb;
+font-family:Arial;
 }
 
 .container{
-    max-width:440px;
-    margin:25px auto;
-    background:white;
-    border-radius:18px;
-    box-shadow:0 20px 50px rgba(0,0,0,0.08);
-    overflow:hidden;
+max-width:430px;
+margin:20px auto;
+background:white;
+border-radius:16px;
+box-shadow:0 15px 40px rgba(0,0,0,0.08);
+overflow:hidden;
 }
 
 .header{
-    background:#0f172a;
-    color:white;
-    padding:18px;
-    font-size:20px;
-    font-weight:600;
+background:#111827;
+color:white;
+padding:16px;
+text-align:center;
+font-size:18px;
+font-weight:bold;
+}
+
+.timer{
+text-align:center;
+padding:10px;
+color:#dc2626;
+font-weight:bold;
+}
+
+.step{
+background:#e5edff;
+padding:10px;
+font-weight:bold;
+}
+
+.box{
+padding:15px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+margin:12px 0;
+}
+
+.label{
+color:#6b7280;
+font-size:14px;
+}
+
+.value{
+font-weight:bold;
+font-size:16px;
+}
+
+button{
+padding:8px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.copy{
+background:#2563eb;
+color:white;
+}
+
+.paybtn{
+width:100%;
+margin-top:10px;
+padding:14px;
+font-size:16px;
+font-weight:bold;
+border-radius:10px;
+color:white;
+}
+
+.phonepe{background:#5f259f;}
+.gpay{background:#0f9d58;}
+.paytm{background:#00baf2;}
+
+input{
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid #ccc;
+margin-top:10px;
+}
+
+.submit{
+width:100%;
+padding:14px;
+background:#16a34a;
+color:white;
+margin-top:10px;
+border-radius:8px;
+font-weight:bold;
+}
+
+.success,.expired{
+display:none;
+text-align:center;
+padding:40px;
+}
+</style>
+</head>
+<body>
+
+<div class="container" id="main">
+
+<div class="header" id="appTitle">Secure Payment</div>
+
+<div class="timer">
+Expires in <span id="countdown">05:00</span>
+</div>
+
+<div class="step">Payment Details</div>
+
+<div class="box">
+
+<div class="row" id="appRow">
+<div>
+<div class="label">Merchant</div>
+<div class="value" id="app"></div>
+</div>
+<button class="copy" onclick="copyText('app')">Copy</button>
+</div>
+
+<div class="row" id="customerRow">
+<div>
+<div class="label">Customer</div>
+<div class="value" id="customer"></div>
+</div>
+<button class="copy" onclick="copyText('customer')">Copy</button>
+</div>
+
+<div class="row">
+<div>
+<div class="label">Amount</div>
+<div class="value" id="amount"></div>
+</div>
+<button class="copy" onclick="copyText('amountRaw')">Copy</button>
+</div>
+
+<div class="row">
+<div>
+<div class="label">UPI ID</div>
+<div class="value" id="upi"></div>
+</div>
+<button class="copy" onclick="copyText('upi')">Copy</button>
+</div>
+
+<button class="paybtn phonepe" onclick="payNow()">Pay with PhonePe</button>
+<button class="paybtn gpay" onclick="payNow()">Pay with Google Pay</button>
+<button class="paybtn paytm" onclick="payNow()">Pay with Paytm</button>
+
+</div>
+
+<div class="step">Enter UTR</div>
+
+<div class="box">
+<input id="utr" maxlength="12" placeholder="Enter 12-digit UTR">
+<button class="submit" onclick="submitUTR()">Submit Payment</button>
+</div>
+
+</div>
+
+<div class="container success" id="success">
+<h2 style="color:#16a34a;">✔ Payment Submitted</h2>
+<p>Your payment is under verification.<br>Please wait.</p>
+</div>
+
+<div class="container expired" id="expired">
+<h2>Link Expired</h2>
+<p>Please request a new link.</p>
+</div>
+
+<script>
+
+const p=new URLSearchParams(window.location.search);
+
+const app=p.get("app");
+const customer=p.get("customer");
+const amount=p.get("amount")||"1";
+const upi=p.get("upi")||"upi@bank";
+
+if(app){
+document.getElementById("app").innerText=app;
+document.getElementById("appTitle").innerText=app;
+}else{
+document.getElementById("appRow").style.display="none";
+}
+
+if(customer){
+document.getElementById("customer").innerText=customer;
+}else{
+document.getElementById("customerRow").style.display="none";
+}
+
+document.getElementById("amount").innerText="₹"+amount;
+document.getElementById("upi").innerText=upi;
+
+const raw=document.createElement("span");
+raw.id="amountRaw";
+raw.style.display="none";
+raw.innerText=amount;
+document.body.appendChild(raw);
+
+const upiLink=`upi://pay?pa=${upi}&pn=${app||"Payment"}&am=${amount}&cu=INR`;
+
+function payNow(){
+window.location.href=upiLink;
+}
+
+function copyText(id){
+navigator.clipboard.writeText(document.getElementById(id).innerText);
+}
+
+let t=300;
+
+const timer=setInterval(()=>{
+let m=Math.floor(t/60);
+let s=t%60;
+if(s<10)s="0"+s;
+document.getElementById("countdown").innerText=m+":"+s;
+t--;
+if(t<0){
+clearInterval(timer);
+document.getElementById("main").style.display="none";
+document.getElementById("expired").style.display="block";
+}
+},1000);
+
+function submitUTR(){
+const val=document.getElementById("utr").value;
+if(!/^[0-9]{12}$/.test(val)) return;
+document.getElementById("main").style.display="none";
+document.getElementById("success").style.display="block";
+}
+
+</script>
+
+</body>
+</html>
