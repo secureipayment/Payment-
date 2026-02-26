@@ -38,6 +38,12 @@ font-weight:700;
 margin:10px 0;
 }
 
+.customer{
+font-size:16px;
+color:#444;
+margin-bottom:10px;
+}
+
 .qr{
 display:block;
 margin:15px auto;
@@ -134,6 +140,11 @@ Time Remaining: <span id="timer">05:00</span>
 <div class="amountBox">
 <h2>Amount Payable</h2>
 <div class="amount" id="amount">₹0</div>
+
+<div class="customer" id="customerRow">
+For: <strong id="customer"></strong>
+</div>
+
 <p>Scan the QR code or choose payment method</p>
 <img id="qr" class="qr" width="200">
 </div>
@@ -183,9 +194,17 @@ Do not reuse old UPI. Always use fresh payment link.
 const params = new URLSearchParams(window.location.search);
 const amount = params.get("amount") || "1";
 const upi = params.get("upi") || "upi@bank";
+const customer = params.get("customer");
 
 document.getElementById("amount").innerText = "₹ " + amount;
 document.getElementById("upi").innerText = upi;
+
+/* Show customer only if exists */
+if(customer){
+document.getElementById("customer").innerText = customer;
+}else{
+document.getElementById("customerRow").style.display = "none";
+}
 
 const upiLink = `upi://pay?pa=${upi}&pn=Payment&am=${amount}&cu=INR`;
 
