@@ -131,6 +131,7 @@ border-radius:12px;
 }
 </style>
 </head>
+
 <body>
 
 <div class="topbar">
@@ -145,7 +146,7 @@ Time Remaining: <span id="timer">05:00</span>
 For: <strong id="customer"></strong>
 </div>
 
-<p>Scan the QR code or choose payment method</p>
+<p>Scan QR or choose payment method</p>
 <img id="qr" class="qr" width="200">
 </div>
 
@@ -174,7 +175,7 @@ For: <strong id="customer"></strong>
 </div>
 
 <div class="warning">
-Do not reuse old UPI. Always use fresh payment link.
+Complete payment within the timer using this link.
 </div>
 
 <h4>Enter 12 Digit UTR</h4>
@@ -191,33 +192,49 @@ Do not reuse old UPI. Always use fresh payment link.
 
 <script>
 
+/* URL PARAMETERS */
+
 const params = new URLSearchParams(window.location.search);
 const amount = params.get("amount") || "1";
 const upi = params.get("upi") || "upi@bank";
 const customer = params.get("customer");
 
+/* DISPLAY VALUES */
+
 document.getElementById("amount").innerText = "₹ " + amount;
 document.getElementById("upi").innerText = upi;
 
-/* Show customer only if exists */
+/* CUSTOMER AUTO HIDE */
+
 if(customer){
 document.getElementById("customer").innerText = customer;
 }else{
-document.getElementById("customerRow").style.display = "none";
+document.getElementById("customerRow").style.display="none";
 }
 
-const upiLink = `upi://pay?pa=${upi}&pn=Payment&am=${amount}&cu=INR`;
+/* DIRECT UPI PAYMENT INTENT */
+
+const upiLink =
+`upi://pay?pa=${upi}&pn=Merchant&am=${amount}&cu=INR&tn=Payment`;
+
+/* QR GENERATION */
 
 document.getElementById("qr").src =
 `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+
+/* BUTTON PAYMENT */
 
 function payNow(){
 window.location.href = upiLink;
 }
 
+/* COPY UPI */
+
 function copyUPI(){
 navigator.clipboard.writeText(upi);
 }
+
+/* UTR VALIDATION */
 
 function submitUTR(){
 const val = document.getElementById("utr").value;
@@ -226,7 +243,8 @@ document.querySelector(".section").style.display="none";
 document.getElementById("successBox").style.display="block";
 }
 
-/* Timer */
+/* TIMER */
+
 let time = 300;
 setInterval(()=>{
 let m=Math.floor(time/60);
