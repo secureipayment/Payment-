@@ -6,7 +6,6 @@
 <title>Payment Page</title>
 
 <style>
-
 body{
 margin:0;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
@@ -66,11 +65,8 @@ border-radius:8px;
 font-weight:600;
 cursor:pointer;
 color:white;
+background:#2563eb;
 }
-
-.paytm{background:#00baf2;}
-.phonepe{background:#5f259f;}
-.gpay{background:#0f9d58;}
 
 .copyBox{
 background:white;
@@ -124,7 +120,6 @@ background:white;
 margin:20px;
 border-radius:12px;
 }
-
 </style>
 </head>
 
@@ -135,7 +130,6 @@ Time Remaining: <span id="timer">05:00</span>
 </div>
 
 <div class="amountBox">
-
 <h2>Amount Payable</h2>
 
 <div class="amount" id="amount">₹0</div>
@@ -144,30 +138,18 @@ Time Remaining: <span id="timer">05:00</span>
 For: <strong id="customer"></strong>
 </div>
 
-<p>Scan QR or choose payment method</p>
+<p>Scan QR or tap Pay</p>
 
 <img id="qr" class="qr" width="200">
 
 </div>
 
-
 <div class="section">
 
 <div class="method">
-<div>Paytm</div>
-<button class="paytm" onclick="payPaytm()">Pay</button>
+<div>Pay using UPI App</div>
+<button onclick="payNow()">Pay</button>
 </div>
-
-<div class="method">
-<div>PhonePe</div>
-<button class="phonepe" onclick="payPhonePe()">Pay</button>
-</div>
-
-<div class="method">
-<div>Google Pay</div>
-<button class="gpay" onclick="payGPay()">Pay</button>
-</div>
-
 
 <h4>Manual Transfer (Copy UPI ID)</h4>
 
@@ -177,7 +159,7 @@ For: <strong id="customer"></strong>
 </div>
 
 <div class="warning">
-Complete payment within the timer using this link.
+If payment app shows warning, copy UPI and pay manually.
 </div>
 
 <h4>Enter 12 Digit UTR</h4>
@@ -187,128 +169,83 @@ Complete payment within the timer using this link.
 
 </div>
 
-
 <div class="success" id="successBox">
-
 <h3>Payment Submitted</h3>
 <p>Your payment is under verification.<br>Please wait.</p>
-
 </div>
-
 
 <script>
 
 /* URL PARAMETERS */
 
-const params = new URLSearchParams(window.location.search)
+const params = new URLSearchParams(window.location.search);
 
-const amount = params.get("amount") || "1"
-const upi = params.get("upi") || "upi@bank"
-const customer = params.get("customer")
+const amount = params.get("amount") || "1";
+const upi = params.get("upi") || "upi@bank";
+const customer = params.get("customer");
 
-document.getElementById("amount").innerText = "₹ " + amount
-document.getElementById("upi").innerText = upi
+document.getElementById("amount").innerText = "₹ " + amount;
+document.getElementById("upi").innerText = upi;
+
+/* Customer show / hide */
 
 if(customer){
-document.getElementById("customer").innerText = customer
+document.getElementById("customer").innerText = customer;
 }else{
-document.getElementById("customerRow").style.display="none"
+document.getElementById("customerRow").style.display="none";
 }
 
-
-/* GENERIC UPI LINK */
+/* UPI intent */
 
 const upiLink =
-`upi://pay?pa=${upi}&pn=Merchant&am=${amount}&cu=INR&tn=Payment`
-
+`upi://pay?pa=${upi}&pn=Payment&am=${amount}&cu=INR&tn=Payment`;
 
 /* QR */
 
 document.getElementById("qr").src =
-`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`
+`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
 
+/* Pay button */
 
-
-/* PHONEPE */
-
-function payPhonePe(){
-
-window.location.href =
-`phonepe://pay?pa=${upi}&pn=Merchant&am=${amount}`
-
-setTimeout(function(){
-window.location.href = upiLink
-},800)
-
+function payNow(){
+window.location.href = upiLink;
 }
 
-
-/* GOOGLE PAY */
-
-function payGPay(){
-
-window.location.href =
-`tez://upi/pay?pa=${upi}&pn=Merchant&am=${amount}&cu=INR`
-
-setTimeout(function(){
-window.location.href = upiLink
-},800)
-
-}
-
-
-/* PAYTM */
-
-function payPaytm(){
-
-window.location.href =
-`paytmmp://pay?pa=${upi}&pn=Merchant&am=${amount}`
-
-setTimeout(function(){
-window.location.href = upiLink
-},800)
-
-}
-
-
-/* COPY UPI */
+/* Copy UPI */
 
 function copyUPI(){
-navigator.clipboard.writeText(upi)
+navigator.clipboard.writeText(upi);
 }
 
-
-/* UTR VALIDATION */
+/* UTR validation */
 
 function submitUTR(){
 
-const val = document.getElementById("utr").value
+const val = document.getElementById("utr").value;
 
-if(!/^[0-9]{12}$/.test(val)) return
+if(!/^[0-9]{12}$/.test(val)) return;
 
-document.querySelector(".section").style.display="none"
-document.getElementById("successBox").style.display="block"
+document.querySelector(".section").style.display="none";
+document.getElementById("successBox").style.display="block";
 
 }
 
+/* Timer */
 
-/* TIMER */
-
-let time = 300
+let time = 300;
 
 setInterval(()=>{
 
-let m=Math.floor(time/60)
-let s=time%60
+let m=Math.floor(time/60);
+let s=time%60;
 
-if(s<10)s="0"+s
+if(s<10)s="0"+s;
 
-document.getElementById("timer").innerText=m+":"+s
+document.getElementById("timer").innerText=m+":"+s;
 
-time--
+time--;
 
-},1000)
-
+},1000);
 
 </script>
 
